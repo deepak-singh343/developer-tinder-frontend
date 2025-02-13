@@ -1,78 +1,145 @@
+import { useState } from "react";
 import axios from "axios";
-import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isLoginForm, setIsLoginForm] = useState(true);
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
+
   const handleLogin = async () => {
     try {
-      if (!email.trim() || !password.trim()) {
-        setError({ response: { data: "Email and Password are required!" } });
+      if (!emailId.trim() || !password.trim()) {
+        setError("Email and Password are required!");
         return;
       }
-      const params = {
-        emailId: email,
-        password: password,
-      };
-      const response = await axios.post(`${BASE_URL}/login`, params, {
-        withCredentials: true,
-      });
-      console.log(response.data.data);
-      dispatch(addUser(response.data.data));
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-      setError(error);
+      const res = await axios.post(
+        BASE_URL + "/login",
+        {
+          emailId,
+          password,
+        },
+        { withCredentials: true }
+      );
+      dispatch(addUser(res.data.data));
+      return navigate("/");
+    } catch (err) {
+      setError(err?.response?.data || "Something went wrong");
     }
   };
+
+  const handleSignUp = async () => {
+    try {
+      const res = await axios.post(
+        BASE_URL + "/signup",
+        { firstName, lastName, emailId, password },
+        { withCredentials: true }
+      );
+      dispatch(addUser(res.data.data));
+      return navigate("/profile");
+    } catch (err) {
+      setError(err?.response?.data || "Something went wrong");
+    }
+  };
+
   return (
-    <div className="h-full flex-1 flex justify-center items-center text-black mt-4">
-      <div className="card bg-base-100 w-96 shadow-xl">
+    <div className="flex flex-1 justify-center items-center text-black">
+      <div className="card bg-base-300 w-96 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title flex justify-center">Login</h2>
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text">Email ID</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Enter email id"
-              className="input input-bordered w-full max-w-xs"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text">Password</span>
-            </div>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              className="input input-bordered w-full max-w-xs"
-              value={password}
-              required
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-        </div>
-        <p className="text-red-400 p-3 text-center">{error?.response?.data}</p>
-        <div className="card-actions justify-center mb-4">
-          <button className="btn btn-primary px-8" onClick={handleLogin}>
-            Login
-          </button>
+          <h2 className="card-title justify-center">
+            {isLoginForm ? "Login" : "Sign Up"}
+          </h2>
+          <div>
+            {!isLoginForm && (
+              <>
+                <label className="form-control w-full max-w-xs my-2">
+                  <div className="label">
+                    <span className="label-text">First Name</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={firstName}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </label>
+                <label className="form-control w-full max-w-xs my-2">
+                  <div className="label">
+                    <span className="label-text">Last Name</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={lastName}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </label>
+              </>
+            )}
+            <label className="form-control w-full max-w-xs my-2">
+              <div className="label">
+                <span className="label-text">Email ID:</span>
+              </div>
+              <input
+                type="text"
+                value={emailId}
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  setError("");
+                  setEmailId(e.target.value);
+                }}
+              />
+            </label>
+            <label className="form-control w-full max-w-xs my-2">
+              <div className="label">
+                <span className="label-text">Password</span>
+              </div>
+              <input
+                type="password"
+                value={password}
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  setError("");
+                  setPassword(e.target.value);
+                }}
+              />
+            </label>
+          </div>
+          <p className="text-red-500 text-center">{error}</p>
+          <div className="card-actions justify-center m-2">
+            <button
+              className="btn btn-primary"
+              onClick={isLoginForm ? handleLogin : handleSignUp}
+            >
+              {isLoginForm ? "Login" : "Sign Up"}
+            </button>
+          </div>
+
+          <p
+            className="m-auto cursor-pointer py-2"
+            onClick={() => setIsLoginForm((value) => !value)}
+          >
+            {isLoginForm ? (
+              <span>
+                New User? <span className="text-blue-500">Signup Here</span>
+              </span>
+            ) : (
+              <span>
+                Existing User?<span className="text-blue-500">Login Here</span>{" "}
+              </span>
+            )}
+          </p>
         </div>
       </div>
     </div>
   );
 };
-
 export default Login;
