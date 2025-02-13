@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import Navbar from "./Navbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
-import { BASE_URL } from "../utils/constants";
+import { BASE_URL } from "../Utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { addUser } from "../utils/userSlice";
+import { addUser } from "../Utils/userSlice";
 
 const Body = () => {
   const dispatch = useDispatch();

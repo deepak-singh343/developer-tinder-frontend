@@ -1,8 +1,8 @@
 import axios from "axios";
-import { BASE_URL } from "../utils/constants";
+import { BASE_URL } from "../Utils/constants";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addConnections } from "../utils/connectionSlice";
+import { addConnections } from "../Utils/connectionSlice";
 import { Link } from "react-router-dom";
 
 const Connections = () => {
